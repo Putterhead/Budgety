@@ -1,20 +1,51 @@
+// BUDGET CONTROLLER
 var budgetController = (function() {
 
   // Some Code
 
 })();
 
-var UIController = (function() {
+// UI CONTROLLER
+var UIController = (function() { /* Because this is a funcion you want to be able
+  to use in the other contorller, it needs to be public - so it will have to be in
+  the object that this IIFE will return (REMEMBER, this gets executed immediately
+  and the object that is returned will be assigned to the UIController and all the
+  variables and functions that are defined in the function will stay in the closure
+  even after this function returns - the object that is returned from this will have
+  access to these private methods/functions and variables)*/
 
-  // Some Code
+  var DOMstrings = {
+    inputType: '.add__type',
+    inputDescription: '.add__description',
+    inputValue: '.add__value',
+    inputBtn: '.add__btn'
+  };
+
+  return {
+    getInput: function() {
+      return {
+        type: document.querySelector(DOMstrings.inputType).value, // Will be either 'income' or 'expense'
+        description: document.querySelector(DOMstrings.inputDescription).value,
+        value: document.querySelector(DOMstrings.inputValue).value
+      };
+    },
+
+    getDOMstrings: function() {
+      return DOMstrings;
+    }
+  };
 
 })();
 
-var controller = (function() {
+// GLOBAL APP CONTROLLER
+var controller = (function(budgetCtrl, UICtrl) {
+
+  var DOM = UICtrl.getDOMstrings();
 
   var ctrlAddItem = function() {
     // 1. Get the user input data
-
+    var input = UICtrl.getInput();
+    console.log(input);
     // 2. Add the item to the budget controller
 
     // 3. Add the item to the UI (expese/income item list)
@@ -22,10 +53,10 @@ var controller = (function() {
     // 4. Calculate the budget
 
     // 5. Display the updated budget on the UI
-    console.log('ctrlAddItem function works'); // Just for testing
+
   }
 
-  document.querySelector('.add__btn').addEventListener('click', ctrlAddItem);
+  document.querySelector(DOM.inputBtn).addEventListener('click', ctrlAddItem);
     // upon click, the income or expese should be listed as such and added to its respective total
 
   /* What if you want the user to be able to enter the amount by pressing the 'return' key too?
