@@ -1,7 +1,61 @@
 // BUDGET CONTROLLER
 var budgetController = (function() {
 
-  // Some Code
+  /* Some Code; need a data model for expenses and incomes here: You know that each new item
+  will have description and a value. You also know that you need to distinguish between
+  income and expenses (a unique ID) - to store the data, you want to create an object
+  that has a description, value and an ID. What do you do when you want to create lots
+  of objects? You create function constructors, which can be used to instatiate lots of
+  expense and income objects - so you create a custom data-type for income and expenses. */
+  var Expense = function(id, description, value) { // Function constructors start with capitals, remember?
+    this.id = id;
+    this.description = description;
+    this.value = value;
+  };
+
+  var Income = function(id, description, value) {
+    this.id = id;
+    this.description = description;
+    this.value = value;
+  };
+
+  var data = {
+    allItems: {
+      expense: [],
+      income: []
+    },
+    totals: {
+      expense: 0,
+      income: 0
+    }
+  };
+
+  return {
+    addItem: function(type, des, val) {
+      var newItem, ID;
+      // create a unique number to assign to each new expense or income item
+      if (data.allItems[type].length > 0) {
+        ID = 0; data.allItems[type][data.allItems[type].length - 1].id + 1;
+      } else {
+        ID = 0;
+      }
+
+      // create a new item based on 'income' or 'expense' type
+      if (type === 'expense') {
+        newItem = new Expense(ID, des, val); // After you have the 'newItem' you can add it to your data structure.
+      } else if (type === 'income') {
+        newItem = new Income(ID, des, val);
+      }
+      // push the new item type into its respective array in the data structure
+      data.allItems[type].push(newItem); // [type] can only be expense or income
+
+      return newItem; // Making this public makes it accessable to other modul/fuction
+    },
+
+    testing: function() {
+      console.log(data);
+    }
+  };
 
 })();
 
@@ -62,11 +116,12 @@ var controller = (function(budgetCtrl, UICtrl) {
   };
 
   var ctrlAddItem = function() { // This gets called when you want to add a new item, but it's still private!
+    var input, newItem;
     // 1. Get the user input data
-    var input = UICtrl.getInput();
+    input = UICtrl.getInput();
     console.log(input);
     // 2. Add the item to the budget controller
-
+    newItem = budgetController.addItem(input.type, input.description, input.value);
     // 3. Add the item to the UI (expese/income item list)
 
     // 4. Calculate the budget
