@@ -72,7 +72,9 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
     inputType: '.add__type',
     inputDescription: '.add__description',
     inputValue: '.add__value',
-    inputBtn: '.add__btn'
+    inputBtn: '.add__btn',
+    incomeContainer: '.income__list',
+    expensesContainer: '.expenses__list'
   };
 
   return {
@@ -82,6 +84,29 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
         description: document.querySelector(DOMstrings.inputDescription).value,
         value: document.querySelector(DOMstrings.inputValue).value
       };
+    },
+    // added a new public method to add a list item
+    addListItem: function(obj, type) { /* This obj is exactly the same object you created using
+                                      a function constructor, passed to the app controller*/
+      // Create HTML string with placeholder text
+      var html, newHtml, element;
+
+      if (type === 'income') {
+        element = DOMstrings.incomeContainer;
+        html = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      } else if (type === 'expense') {
+        element = DOMstrings.expensesContainer;
+        html = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      } // The placeholders I've used above are %id%, %description% and %value%
+      // Preplace the placeholder text with some actual data
+      newHtml = html.replace('%id%', obj.id);
+      newHtml = newHtml.replace('%description%', obj.description);
+      newHtml = newHtml.replace('%value%', obj.value);
+      // Insert the HTML into the DOM
+      /* so, first you need to select some element from the DOM, then you can insert
+      this newHtml next to that using the insertAdjacentHTML which accepts (position, text) as arguments
+      https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML*/
+      document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
     },
 
     getDOMstrings: function() {
@@ -115,15 +140,20 @@ var controller = (function(budgetCtrl, UICtrl) {
     });
   };
 
-  var ctrlAddItem = function() { // This gets called when you want to add a new item, but it's still private!
+  var ctrlAddItem = function() { /* This is basically the control center of the app, telling the other moduls what
+    they should do, then gets data back that is used for other things - it gets called when hits the input button
+    or hits the return key, but it's still private!*/
     var input, newItem;
     // 1. Get the user input data
-    input = UICtrl.getInput();
+    input = UICtrl.getInput(); // First, the input is read out of the fields and then stored into this variable
     console.log(input);
     // 2. Add the item to the budget controller
-    newItem = budgetController.addItem(input.type, input.description, input.value);
-    // 3. Add the item to the UI (expese/income item list)
+    newItem = budgetController.addItem(input.type, input.description, input.value); /* Then, using
+    the input variable and the 'addItem' method, a new item is created and stored in the 'newItem' variable.
+    This 'newItem' variable is the object that gets passed to the 'addListItem' method in the UIController*/
 
+    // 3. Add the item to the UI (expese/income item list)
+    UICtrl.addListItem(newItem, input.type);
     // 4. Calculate the budget
 
     // 5. Display the updated budget on the UI
