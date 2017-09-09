@@ -109,6 +109,25 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
       document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
     },
 
+    clearFields: function() { /* you don't need any parameters here because you know which
+    fields you want to clear ('inputDescription' and 'inputValue'). By using the querySelectorAll, you can reduce the code needed*/
+      var fields, fieldsArr;
+
+      fields = document.querySelectorAll(DOMstrings.inputDescription + ', ' + DOMstrings.inputValue); /* The syntax here is like CSS selecting
+      separating different selectors simply by a comma. But the querySelectorAll method doesn't return
+      a nice array that you can loop over, instead it returns a List, which you can then convert to an array.*/
+      fieldsArr = Array.prototype.slice.call(fields); /* Using the 'call' method and setting the 'this' variable
+      to 'fields' tricks the 'slice' method into thinking that we're giving it an array, so it will
+      return an array.
+      Now you're able to loop over the array and can clear the two selected fields*/
+      fieldsArr.forEach(function(current, index, array) {
+        current.value = ""; // This sets the value of the 'current' element being processed to empty.
+      }); // So now this function can be used in the app controller!
+      /* But after clearing the fields, you'll want to set the focus back to the desciption
+      field making it easier to input the values. This can be done as follows using the 'focus' method.*/
+      fieldsArr[0].focus();
+    },
+
     getDOMstrings: function() {
       return DOMstrings;
     }
@@ -146,7 +165,6 @@ var controller = (function(budgetCtrl, UICtrl) {
     var input, newItem;
     // 1. Get the user input data
     input = UICtrl.getInput(); // First, the input is read out of the fields and then stored into this variable
-    console.log(input);
     // 2. Add the item to the budget controller
     newItem = budgetController.addItem(input.type, input.description, input.value); /* Then, using
     the input variable and the 'addItem' method, a new item is created and stored in the 'newItem' variable.
@@ -154,9 +172,11 @@ var controller = (function(budgetCtrl, UICtrl) {
 
     // 3. Add the item to the UI (expese/income item list)
     UICtrl.addListItem(newItem, input.type);
-    // 4. Calculate the budget
+    // 4. Clear the fields of the UI
+    UICtrl.clearFields();
+    // 5. Calculate the budget
 
-    // 5. Display the updated budget on the UI
+    // 6. Display the updated budget on the UI
 
   };
 
