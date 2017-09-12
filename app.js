@@ -19,6 +19,19 @@ var budgetController = (function() {
     this.value = value;
   };
 
+  var calculateTotal = function(type) {
+    var sum = 0;
+    data.allItems[type].forEach(function(cur) { /* This function has access to a couple
+      of parameters. The current value, the current index and the complete array - in
+      this case you only need the current element, 'cur'*/
+      sum += cur.value; /* It's 'cur.value' because that's its name in the 'Expense'
+      and 'Income' variables above*/
+
+    });
+    data.totals[type] = sum; /* Which is setting the respective totals ('expense', 'income')
+    below to the value of 'sum'*/
+  };
+
   var data = {
     allItems: {
       expense: [],
@@ -27,7 +40,10 @@ var budgetController = (function() {
     totals: {
       expense: 0,
       income: 0
-    }
+    },
+    budget: 0,
+    percentage: -1 /* Its set to -1 as default to say that it's non-existant if
+    there are not total expense or income items then you can't have a percentage*/
   };
 
   return {
@@ -50,6 +66,32 @@ var budgetController = (function() {
       data.allItems[type].push(newItem); // [type] can only be expense or income
 
       return newItem; // Making this public makes it accessable to other modul/fuction
+    },
+
+    calculateBudget: function() {
+
+      // calculate total income and expense
+      calculateTotal('expense');
+      calculateTotal('income');
+      // calculate the surplus: income - expense
+      data.budget = data.totals.income - data.totals.expense;
+
+      // calculate the percentage of income that is spent
+      if (data.totals.income > 0) {
+        data.percentage = Math.round((data.totals.expense / data.totals.income) * 100);
+      } else {
+        data.percentage = -1;
+      }
+
+    },
+
+    getBudget: function() {
+      return {
+        budget: data.budget,
+        totalInc: data.totals.income,
+        totalExp: data.totals.expense,
+        percentage: data.percentage
+      };
     },
 
     testing: function() {
@@ -160,12 +202,13 @@ var controller = (function(budgetCtrl, UICtrl) {
     });
   };
 
-  var updateBudget = function() {
+  var updateBudget = function() { // This is called each time you enter a new item in the UI via the 'ctrlAddItem' function, below.
     // 1. Calculate the budget
-
+    budgetCtrl.calculateBudget();
     // 2. Return the updated budget
-
+    var budget = budgetCtrl.getBudget();
     // 3. Display the updated budget on the UI
+    console.log(budget);
   };
 
   var ctrlAddItem = function() { /* This is basically the control center of the app, telling the other moduls what
