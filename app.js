@@ -110,13 +110,19 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
   even after this function returns - the object that is returned from this will have
   access to these private methods/functions and variables)*/
 
-  var DOMstrings = {
+  var DOMstrings = { /* Rather than having all of these class names floating around
+    in all of these methods. This makes you're life much easier if something changes in the
+    UI, you can simply come here and update these class names*/
     inputType: '.add__type',
     inputDescription: '.add__description',
     inputValue: '.add__value',
     inputBtn: '.add__btn',
     incomeContainer: '.income__list',
-    expensesContainer: '.expenses__list'
+    expensesContainer: '.expenses__list',
+    budgetLable: '.budget__value', /* This points to line 18 of the index.html (Don't forget the class selector '.'!!!)*/
+    incomeLable: '.budget__income--value',
+    expensesLable: '.budget__expenses--value',
+    percentageLable: '.budget__expenses--percentage'
   };
 
   return {
@@ -171,6 +177,19 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
       fieldsArr[0].focus();
     },
 
+    displayBudget: function(obj) { /* You need the object where all of this data is stored.
+      'obj' should contain the four pieces of data that we want to print in the UI*/
+      document.querySelector(DOMstrings.budgetLable).textContent = obj.budget;
+      document.querySelector(DOMstrings.incomeLable).textContent = obj.income;
+      document.querySelector(DOMstrings.expensesLable).textContent = obj.expense;
+
+      if (obj.percentage > 0) {
+        document.querySelector(DOMstrings.percentageLable).textContent = obj.percentage + '%';
+      } else {
+        document.querySelector(DOMstrings.percentageLable).textContent = '---';
+      }
+    },
+
     getDOMstrings: function() {
       return DOMstrings;
     }
@@ -208,7 +227,7 @@ var controller = (function(budgetCtrl, UICtrl) {
     // 2. Return the updated budget
     var budget = budgetCtrl.getBudget();
     // 3. Display the updated budget on the UI
-    console.log(budget);
+    UICtrl.displayBudget(budget); // And the argement 'budget' is pointing to '(obj)' argument used in the displayBudget function declaration.
   };
 
   var ctrlAddItem = function() { /* This is basically the control center of the app, telling the other moduls what
@@ -237,8 +256,13 @@ var controller = (function(budgetCtrl, UICtrl) {
   // Because you want the 'init' function to be public, you need to return it in an object,
   return {
     init: function() {
+      UICtrl.displayBudget({
+        budget: 0,
+        totalInc: 0,
+        totalExp: 0,
+        percentage: -1
+      });
       setupEventListeners();
-      // ctrlAddItem;
     }
   };
 
