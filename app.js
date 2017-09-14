@@ -122,7 +122,8 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
     budgetLable: '.budget__value', /* This points to line 18 of the index.html (Don't forget the class selector '.'!!!)*/
     incomeLable: '.budget__income--value',
     expensesLable: '.budget__expenses--value',
-    percentageLable: '.budget__expenses--percentage'
+    percentageLable: '.budget__expenses--percentage',
+    container: '.container'
   };
 
   return {
@@ -141,10 +142,10 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
       var html, newHtml, element;
 
       if (type === 'income') {
-        element = DOMstrings.incomeContainer;
+        element = DOMstrings.incomeContainer; // "income-%id%" encodes both the item type and and the item ID, which will be useful later to tell the budgetController what to delete when you hit the delete button in the UI.
         html = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       } else if (type === 'expense') {
-        element = DOMstrings.expensesContainer;
+        element = DOMstrings.expensesContainer; // "expense-%id%" encodes both the item type and and the item ID, which will be useful later to tell the budgetController what to delete when you hit the delete button in the UI.
         html = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       } // The placeholders I've used above are %id%, %description% and %value%
       // Preplace the placeholder text with some actual data
@@ -219,6 +220,9 @@ var controller = (function(budgetCtrl, UICtrl) {
         ctrlAddItem();
       }
     });
+
+    document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
+
   };
 
   var updateBudget = function() { // This is called each time you enter a new item in the UI via the 'ctrlAddItem' function, below.
@@ -250,6 +254,32 @@ var controller = (function(budgetCtrl, UICtrl) {
       // 5. Calculate and update budget
       updateBudget();
     }
+
+  };
+
+  var ctrlDeleteItem = function(event) { /* He suggests starting off by console.logging (event.target)
+    which will print to the console the object you're clicking on in the UI get the right object for this '(event)'*/
+      var itemID, splitID, type, ID;
+      /*The 'event.target' is where it's first fired and (I know...it's hard coded)
+      then it's traversed it up to where I want it and retrieve its id and stored it in 'itemID'*/
+      itemID = (event.target.parentNode.parentNode.parentNode.parentNode.id);
+      /*The item type (income or expense) and its unique ID are now encoded in 'itemID'*/
+      if (itemID) {
+
+        /*By spliting the string, I've divided the item type and its unique ID up and 
+        assigned to variables, which can be used in deleting them from the data structure and UI,
+        should the user want to do that*/
+        splitID = itemID.split('-');
+        type = splitID[0];
+        ID = splitID[1];
+
+        // 1. Delete the item from the data structure
+
+        // 2. Delete the item from the UI
+
+        // 3. Update and show the new budget
+
+      }
 
   };
 
