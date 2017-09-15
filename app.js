@@ -68,6 +68,35 @@ var budgetController = (function() {
       return newItem; // Making this public makes it accessable to other modul/fuction
     },
 
+    deleteItem: function(type, id) { /*In order to be able to delete an item from the data structure
+      you need to know what arguments the appController will need to pass into this method.
+      If you look at the data structure (var data), you know that in the arrays 'expense' and
+      'income' you're storing all of the respective objects, which are identified by their
+      unique id. So what you need in order to delete one of the items from these arrays, is
+      first to know if you're talking about an expense or an income, then you need its
+      unique id. So this is why the controller is passing 'type' and 'id' into this function. But
+      note, that you need to know the index of the item you're looking to remove not just it's
+      unique input id, otherwise the wrong objects will eventually be deleted. So the solution
+      is to create an array with all the id numbers - looping over all of the elements of an
+      'income' or 'expenses' array.*/
+      var ids, index;
+      ids = data.allItems[type].map(function(current) { /* Remeber, the 'map' function has access to the current item,
+      the current index of the item and the entire array - the difference between '.map' and '.forEach' is that
+      '.map' returns a brand new array.*/
+        return current.id;
+
+      });
+
+      index = ids.indexOf(id); /*This returns the index number of the element of the array that's
+      input as an argument. So if you have ids = [1, 2, 4, 6, 8] and the id = 6, then the
+      index would be 3. Then all you need to do is delete this item from the array*/
+
+      if (index !== -1) {
+        data.allItems[type].splice(index, 1);/*The splice method takes two arguments; the first,
+        where you want to start deleting from and the second, how many elements you want to delete.*/
+      }
+    },
+
     calculateBudget: function() {
 
       // calculate total income and expense
@@ -266,15 +295,15 @@ var controller = (function(budgetCtrl, UICtrl) {
       /*The item type (income or expense) and its unique ID are now encoded in 'itemID'*/
       if (itemID) {
 
-        /*By spliting the string, I've divided the item type and its unique ID up and 
+        /*By spliting the string, I've divided the item type and its unique ID up and
         assigned to variables, which can be used in deleting them from the data structure and UI,
         should the user want to do that*/
         splitID = itemID.split('-');
         type = splitID[0];
-        ID = splitID[1];
+        ID = parseInt(splitID[1]);
 
         // 1. Delete the item from the data structure
-
+        budgetCtrl.deleteItem(type, ID);
         // 2. Delete the item from the UI
 
         // 3. Update and show the new budget
