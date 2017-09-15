@@ -13,6 +13,18 @@ var budgetController = (function() {
     this.value = value;
   };
 
+  Expense.prototype.calcPercentage = function(totalIncome) {
+    if (totalIncome > 0) {
+      this.percentage = Math.round((this.value / totalIncome) * 100);
+    } else {
+      this.percentage = -1;
+    }
+  };
+
+  Expense.prototype.getPercentage = function() {
+    return this.percentage;
+  };
+
   var Income = function(id, description, value) {
     this.id = id;
     this.description = description;
@@ -113,6 +125,35 @@ var budgetController = (function() {
       }
 
     },
+
+
+    calculatePercentages: function() {
+
+      /*
+      a=20
+      b=10
+      c=40
+      income = 100
+      -Percentages-
+      a=20/100(this would be totalInc)=0.2
+      b=10/100=0.1
+      c=40/100=0.4
+      */
+
+      data.allItems.expense.forEach(function(cur) {
+        cur.calcPercentage(data.totals.income);
+      });
+    },
+
+
+    getPercentages: function() { /*Using the '.map' method, this function loops
+      over the array and then stores the objects in the variable, 'allPerc'*/
+      var allPerc = data.allItems.expense.map(function(cur) {
+        return cur.getPercentage();
+      });
+      return allPerc; // This just returns the array with all of the percentages in it.
+    },
+
 
     getBudget: function() {
       return {
@@ -220,8 +261,8 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
     displayBudget: function(obj) { /* You need the object where all of this data is stored.
       'obj' should contain the four pieces of data that we want to print in the UI*/
       document.querySelector(DOMstrings.budgetLable).textContent = obj.budget;
-      document.querySelector(DOMstrings.incomeLable).textContent = obj.income;
-      document.querySelector(DOMstrings.expensesLable).textContent = obj.expense;
+      document.querySelector(DOMstrings.incomeLable).textContent = obj.totalInc;
+      document.querySelector(DOMstrings.expensesLable).textContent = obj.totalExp;
 
       if (obj.percentage > 0) {
         document.querySelector(DOMstrings.percentageLable).textContent = obj.percentage + '%';
@@ -273,6 +314,16 @@ var controller = (function(budgetCtrl, UICtrl) {
     UICtrl.displayBudget(budget); // And the argement 'budget' is pointing to '(obj)' argument used in the displayBudget function declaration.
   };
 
+  var updatePercentages = function() { /*This is similar to the updateBudget function*/
+
+    // 1. Calculate percentages
+    budgetCtrl.calculatePercentages();
+    // 2. Read percentages from the budget controller
+    var percentages = budgetCtrl.getPercentages();
+    // 3. Update the UI with the enw percentages
+    console.log(percentages);
+  };
+
   var ctrlAddItem = function() { /* This is basically the control center of the app, telling the other moduls what
     they should do, then gets data back that is used for other things - it gets called when hits the input button
     or hits the return key, but it's still private!*/
@@ -292,6 +343,9 @@ var controller = (function(budgetCtrl, UICtrl) {
 
       // 5. Calculate and update budget
       updateBudget();
+
+      // 6. Calculate and update percentages
+      updatePercentages();
     }
 
   };
@@ -318,6 +372,8 @@ var controller = (function(budgetCtrl, UICtrl) {
         UICtrl.deleteListItem(itemID);
         // 3. Update and show the new budget
         updateBudget();
+        // 4. Update and show new percentages
+        updatePercentages();
       }
 
   };
