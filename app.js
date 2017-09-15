@@ -188,6 +188,16 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
       document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
     },
 
+    deleteListItem: function(selectorID) {/* In order to remove an element from the DOM? You need a
+      class name or id name so that you can first select it and then remove it. Removig something
+      from the DOM can be done pretty easily using the 'removeChild' method but if you're going to
+      use that, you first need to know the parent, so you basically have to move up in the DOM to
+      allow the removal of the child. So you start by selecting the element (I've used 'getElementById'
+      here since I have its id),*/
+      var el = document.getElementById(selectorID);
+      el.parentNode.removeChild(el); /*https://blog.garstasio.com/you-dont-need-jquery/dom-manipulation/*/
+    },
+
     clearFields: function() { /* you don't need any parameters here because you know which
     fields you want to clear ('inputDescription' and 'inputValue'). By using the querySelectorAll, you can reduce the code needed*/
       var fields, fieldsArr;
@@ -305,9 +315,9 @@ var controller = (function(budgetCtrl, UICtrl) {
         // 1. Delete the item from the data structure
         budgetCtrl.deleteItem(type, ID);
         // 2. Delete the item from the UI
-
+        UICtrl.deleteListItem(itemID);
         // 3. Update and show the new budget
-
+        updateBudget();
       }
 
   };
