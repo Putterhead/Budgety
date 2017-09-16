@@ -193,7 +193,8 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
     incomeLable: '.budget__income--value',
     expensesLable: '.budget__expenses--value',
     percentageLable: '.budget__expenses--percentage',
-    container: '.container'
+    container: '.container',
+    expensesPercLabel: '.item__percentage'
   };
 
   return {
@@ -271,6 +272,35 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
       }
     },
 
+    displayPercentage: function(percentages) { /* This is going to receive the percentage array that is stored
+      in the app controller - 'percentages'.
+      Where are you going to display them? Have a look in the html file; you want the class name 'item__percentage'.
+      But you don't know how many expense items will be on the list. So I can't use 'querySelector' because that
+      only selects the first one. So I need to use 'querySelectorAll' */
+      var fields = document.querySelectorAll(DOMstrings.expensesPercLabel); /* This returns a nodeList, because
+      in a DOM tree where all of the html elements of a page are stored each element is called a 'node'. So
+      what I need to do now is loop over all of these elements (Nodes) in this selection and change the
+      text content property for each of them.
+      Now, 'nodeList' doesn't have the 'forEach' method so I'll create a forEach function instead,*/
+      var nodeListForEach = function(list, callback) { /* This is simply a for loop that on each iteration
+        is going to call the callback function. By putting this into a function it becomes a piece of
+        reusable code ('nodeListForEach') that I can use for all of the nodeLists throughout the app*/
+        for (var i = 0; i < list.length; i++) { // This is really the power of first class functions! It allows you to pass these functions around
+          callback(list[i], i);
+        }
+      };
+
+      nodeListForEach(fields, function(current, index) {
+        if (percentages[index] > 0) {
+          current.textContent = percentages[index] + '%'; /*This gives you the percentages at each index*/
+        } else {
+          current.textContent = '---';
+        }
+
+      });
+
+    },
+
     getDOMstrings: function() {
       return DOMstrings;
     }
@@ -321,7 +351,7 @@ var controller = (function(budgetCtrl, UICtrl) {
     // 2. Read percentages from the budget controller
     var percentages = budgetCtrl.getPercentages();
     // 3. Update the UI with the enw percentages
-    console.log(percentages);
+    UICtrl.displayPercentage(percentages);
   };
 
   var ctrlAddItem = function() { /* This is basically the control center of the app, telling the other moduls what
