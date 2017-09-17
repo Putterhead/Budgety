@@ -197,6 +197,48 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
     expensesPercLabel: '.item__percentage'
   };
 
+  var formatNumber = function(num, type) {
+    var numSplit, int, dec, type;
+    /*
+    + or - before number
+    exactly 2 decimal points
+    comma separating the thousands
+
+    2310.4567 -> + 2,310.46
+    2000 -> 2,000.00
+    */
+
+    num = Math.abs(num); /* abs stands for absolute, which simply removes the sign of the number
+    so although the function argument 'num' is taken as an argument, it's been written over by
+    this 'num' variable*/
+    num = num.toFixed(2); /* this fixes the number of decimal places to two. This is not a method
+    of the Math object such as 'abs'. Instead, this is a method of the 'number prototype' - strings
+    and numbers can also have methods even if they are originally primative data-types. And if you
+    use a method on it, like I'm doing here with '.toFixed', then JS automatically converts them to
+    objects and then their methods can be used.*/
+    numSplit = num.split('.'); /* This divides the integer and float parts of the number into two,
+    which I've assigned to respective varialbes below for including the comma for the thousands*/
+
+    int = numSplit[0];
+    if (int.length > 3) { /* With strings too, you have access to the '.length' method!
+      This should work with any number, the method '.substr' is a bit like '.splice' in
+      that it takes two arguments, the index and the number of elements. But in this case
+      we want to select where the comma should break the number and that has to be between
+      the first element and the last three elements (eg. 23,410 or 2,310).*/
+      int = int.substr(0, int.length - 3) + ',' + int.substr(int.length - 3, 3);
+    }
+
+    dec = numSplit[1];
+
+    // Now I've got all I need to return the formated string!
+    /* By placing the Turnery Operator in brackets ensures that it will be evaluated first.
+    And, remember, 'int' and 'dec' are still strings, which allows this sum without the
+    numbers being actually added together, which would produce completely false numbers!*/
+    return (type === 'expense' ? '-' : '+') + ' ' + int + '.' + dec;
+    /*Now that this is done, I've put this 'formatNumber' function in 'addListItem' function
+    so that it automatically formats the number when a new list item is added by the user.*/
+  };
+
   return {
     getInput: function() {
       return {
@@ -222,7 +264,9 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
       // Preplace the placeholder text with some actual data
       newHtml = html.replace('%id%', obj.id);
       newHtml = newHtml.replace('%description%', obj.description);
-      newHtml = newHtml.replace('%value%', obj.value);
+      newHtml = newHtml.replace('%value%', formatNumber(obj.value, type)); /* I added the 'formatNumber'
+      function (which is a private method sitting a few lines above), which takes the object value and
+      type (income or expense) as arguments and then formats and replaces the numbers in the string accordingly. */
       // Insert the HTML into the DOM
       /* so, first you need to select some element from the DOM, then you can insert
       this newHtml next to that using the insertAdjacentHTML which accepts (position, text) as arguments
@@ -261,9 +305,12 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
 
     displayBudget: function(obj) { /* You need the object where all of this data is stored.
       'obj' should contain the four pieces of data that we want to print in the UI*/
-      document.querySelector(DOMstrings.budgetLable).textContent = obj.budget;
-      document.querySelector(DOMstrings.incomeLable).textContent = obj.totalInc;
-      document.querySelector(DOMstrings.expensesLable).textContent = obj.totalExp;
+      var type;
+      obj.budget > 0 ? type = 'income' : type = 'expense';
+
+      document.querySelector(DOMstrings.budgetLable).textContent = formatNumber(obj.budget, type);
+      document.querySelector(DOMstrings.incomeLable).textContent = formatNumber(obj.totalInc, 'income');
+      document.querySelector(DOMstrings.expensesLable).textContent = formatNumber(obj.totalExp, 'expense');
 
       if (obj.percentage > 0) {
         document.querySelector(DOMstrings.percentageLable).textContent = obj.percentage + '%';
