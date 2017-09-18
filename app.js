@@ -194,7 +194,8 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
     expensesLable: '.budget__expenses--value',
     percentageLable: '.budget__expenses--percentage',
     container: '.container',
-    expensesPercLabel: '.item__percentage'
+    expensesPercLabel: '.item__percentage',
+    dateLabel: '.budget__title--month'
   };
 
   var formatNumber = function(num, type) {
@@ -348,6 +349,25 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
 
     },
 
+    displayMonth: function() {
+      var now, months, month, year;
+
+      now = new Date(); /* Remember, with object constructors you have to use the 'new'
+      and if you don't pass anything into the date constructor it will return todays date.*/
+      months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      month = now.getMonth(); /* This is going to return a zero based number (i.e. 8 for September),
+      which is why I've added an array, 'months' above that and called this as an argment below when selecting*/
+      year = now.getFullYear(); /* This object now inherites a bunch of methods from the date-prototype.
+      Now, I need to display this in the UI. If you look in the html file, you'll see
+      directly under the head the class 'budget__title--month' - this is what I need to manipulate.
+      So, I first have to add this to the DOMstrings object, calling it 'dateLabel', then,
+      I've selected that object and set the textContent property to the year.*/
+      document.querySelector(DOMstrings.dateLabel).textContent = months[month] + ' ' + year;
+      /* All I need to do now is call this method in the 'init' function to display the correct year.
+      Now, for the month,*/
+
+    },
+
     getDOMstrings: function() {
       return DOMstrings;
     }
@@ -458,6 +478,7 @@ var controller = (function(budgetCtrl, UICtrl) {
   // Because you want the 'init' function to be public, you need to return it in an object,
   return {
     init: function() {
+      UICtrl.displayMonth();
       UICtrl.displayBudget({
         budget: 0,
         totalInc: 0,
