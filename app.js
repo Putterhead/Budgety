@@ -240,6 +240,14 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
     so that it automatically formats the number when a new list item is added by the user.*/
   };
 
+  var nodeListForEach = function(list, callback) { /* This is simply a for loop that on each iteration
+    is going to call the callback function. By putting this into a function it becomes a piece of
+    reusable code ('nodeListForEach') that I can use for all of the nodeLists throughout the app*/
+    for (var i = 0; i < list.length; i++) { // This is really the power of first class functions! It allows you to pass these functions around
+      callback(list[i], i);
+    }
+  };
+
   return {
     getInput: function() {
       return {
@@ -330,13 +338,6 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
       what I need to do now is loop over all of these elements (Nodes) in this selection and change the
       text content property for each of them.
       Now, 'nodeList' doesn't have the 'forEach' method so I'll create a forEach function instead,*/
-      var nodeListForEach = function(list, callback) { /* This is simply a for loop that on each iteration
-        is going to call the callback function. By putting this into a function it becomes a piece of
-        reusable code ('nodeListForEach') that I can use for all of the nodeLists throughout the app*/
-        for (var i = 0; i < list.length; i++) { // This is really the power of first class functions! It allows you to pass these functions around
-          callback(list[i], i);
-        }
-      };
 
       nodeListForEach(fields, function(current, index) {
         if (percentages[index] > 0) {
@@ -365,7 +366,32 @@ var UIController = (function() { /* Because this is a funcion you want to be abl
       document.querySelector(DOMstrings.dateLabel).textContent = months[month] + ' ' + year;
       /* All I need to do now is call this method in the 'init' function to display the correct year.
       Now, for the month,*/
+    },
 
+    changedType: function() { /*So I basically want to do some style manipulations here - I want to
+      change the look of the input fields and buttons in the UI depending on the input types income
+      (green) and expenses (red). The best way to do this is to add or remove some CSS classes. So
+      if you can be bothered to look into the CSS file, you'll see I've added a '.red' class for the button
+      and a '.red-focus' class for the other three elements. So what do I have to do? I have to select
+      all three of the elements that are going to receive the '.red-focus' class and the button to receive
+      the '.red' class. For the first three, I'm going to use the 'querySelectorAll' and input the three
+      class names, separated by commas in a string construction.*/
+      var fields = document.querySelectorAll(
+        DOMstrings.inputType + ',' +
+        DOMstrings.inputDescription + ',' +
+        DOMstrings.inputValue
+      ); /* Remember, this returns a nodeList and in order to loop over it I can't use the 'forEach'
+      method but I wrote a function already for this purpose - 'nodeListForEach'which I can make
+      use of again. Though, I had to move it from the 'displayPercentage' function where it
+      wasn't accessable out to underneth the 'formatNumber' function making it accessable within
+      the controller moduel. */
+      nodeListForEach(fields, function(cur){ /* I want the current element 'cur' but I don't
+      really need the index number because all I want to do is add the '.red-focus' class
+      to the current element. */
+        cur.classList.toggle('red-focus');
+      });
+
+      document.querySelector(DOMstrings.inputBtn).classList.toggle('red');
     },
 
     getDOMstrings: function() {
@@ -399,6 +425,11 @@ var controller = (function(budgetCtrl, UICtrl) {
     });
 
     document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
+
+    document.querySelector(DOM.inputType).addEventListener('change', UICtrl.changedType); /* 'change' is
+    different to click in that it's just looking for a change event to happen on an element - in this
+    case the 'inputType' element and is calling the 'changedType' function on it, which is located in
+    the UIController.*/
 
   };
 
